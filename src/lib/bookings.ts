@@ -14,3 +14,11 @@ export const bookings: BookingType[] = [
     status: 'active',
   },
 ];
+
+export const getBookingById = (bookingId: string): BookingType | undefined => {
+  return bookings.find((booking) => booking.id.toString() === bookingId);
+};
+
+export const getBookings = (): BookingType[] => {
+  return bookings;
+};

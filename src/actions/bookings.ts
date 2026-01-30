@@ -2,6 +2,7 @@
 
 import { bookings } from '@/lib/bookings';
 import { BookingType } from '@/types/booking';
+import { revalidatePath } from 'next/cache';
 
 export const cancelBooking = async (
   bookingId: string,
@@ -17,5 +18,9 @@ export const cancelBooking = async (
   if (booking.status === 'active') {
     booking.status = 'canceled';
   }
+
+  revalidatePath('/dashboard');
+  revalidatePath(`/dashboard/bookings/${bookingId}`);
+
   return booking;
 };

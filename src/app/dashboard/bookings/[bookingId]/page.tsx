@@ -1,16 +1,19 @@
-import { fetchJson } from '@/lib/api';
-import { BookingDetailsPageProps, BookingType } from '@/types/booking';
+import { BookingDetailsPageProps } from '@/types/booking';
 import { PageProps } from '@/types/global';
 import CancelButton from './CancelButton';
+import { getBookingById } from '@/lib/bookings';
+import { notFound } from 'next/navigation';
 
 export default async function BookingDetailsPage({
   params,
 }: PageProps<BookingDetailsPageProps>) {
   const { bookingId } = await params;
 
-  const booking = await fetchJson<BookingType>(`/api/bookings/${bookingId}`, {
-    cache: 'no-store',
-  });
+  const booking = getBookingById(bookingId);
+
+  if (!booking) {
+    notFound();
+  }
 
   const { customerName, date, status } = booking;
 
