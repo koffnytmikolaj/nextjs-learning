@@ -1,26 +1,21 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useTransition } from 'react';
 import { CancelButtonProps } from './types';
-import { fetchJson } from '@/lib/api';
 import { BookingType } from '@/types/booking';
+import { cancelBooking } from '@/actions/bookings';
 
 export default function CancelButton(props: CancelButtonProps) {
   const { bookingId } = props;
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isPending, startTransition] = useTransition();
   const [booking, setBooking] = useState<BookingType | null>(null);
 
-  const handleCancel = useCallback(async () => {
-    setIsLoading(true);
-    const booking = await fetchJson<BookingType>(
-      `/api/bookings/${bookingId}/cancel`,
-      {
-        method: 'POST',
-      },
-    );
-    setBooking(booking);
-    setIsLoading(false);
+  const handleCancel = useCallback(() => {
+    startTransition(async () => {
+      const booking = await cancelBooking(bookingId);
+      setBooking(booking);
+    });
   }, [bookingId]);
 
   if (booking?.status === 'canceled') {
@@ -28,8 +23,8 @@ export default function CancelButton(props: CancelButtonProps) {
   }
 
   return (
-    <button onClick={handleCancel} disabled={isLoading}>
-      {isLoading ? 'Anulowanie...' : 'Anuluj rezerwację'}
+    <button onClick={handleCancel} disabled={isPending}>
+      {isPending ? 'Anulowanie...' : 'Anuluj rezerwację'}
     </button>
   );
 }
